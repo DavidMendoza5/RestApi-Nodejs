@@ -1,17 +1,10 @@
-const mysql = require('mysql');
-const config = require('../config');
-connection = mysql.createConnection({
-    host: config.host,
-    user: config.user,
-    password: config.password,
-    database: config.database
-});
+const pool = require('../database/connection');
 
 let pedidosModel = {};
 
 pedidosModel.getPedidos = (callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'SELECT * FROM pedido ORDER BY id',
             (err, rows) => {
                 if(err){
@@ -25,8 +18,8 @@ pedidosModel.getPedidos = (callback) => {
 };
 
 pedidosModel.insertPedidos = (pedidosData, callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'INSERT INTO pedido SET ?', pedidosData,
             (err, result) => {
                 if(err){
@@ -42,18 +35,18 @@ pedidosModel.insertPedidos = (pedidosData, callback) => {
 }
 
 pedidosModel.updatePedidos = (pedidosData, callback) => {
-    if(connection){
+    if(pool){
         const sql = `
         UPDATE pedido SET
-        id_pizza =  ${connection.escape(pedidosData.id_pizza)},
-        id_tamano = ${connection.escape(pedidosData.id_tamano)},
-        id_ingrediente = ${connection.escape(pedidosData.id_ingrediente)},
-        precio = ${connection.escape(pedidosData.precio)},
-        id_cliente = ${connection.escape(pedidosData.id_cliente)},
-        id_empleado = ${connection.escape(pedidosData.id_empleado)}
-        WHERE id = ${connection.escape(pedidosData.id)}
+        id_pizza =  ${pool.escape(pedidosData.id_pizza)},
+        id_tamano = ${pool.escape(pedidosData.id_tamano)},
+        id_ingrediente = ${pool.escape(pedidosData.id_ingrediente)},
+        precio = ${pool.escape(pedidosData.precio)},
+        id_cliente = ${pool.escape(pedidosData.id_cliente)},
+        id_empleado = ${pool.escape(pedidosData.id_empleado)}
+        WHERE id = ${pool.escape(pedidosData.id)}
         `
-        connection.query(sql, (err, result) => {
+        pool.query(sql, (err, result) => {
             if(err){
                 throw err;
             }else {
@@ -66,17 +59,17 @@ pedidosModel.updatePedidos = (pedidosData, callback) => {
 };
 
 pedidosModel.deletePedidos = (id, callback) => {
-    if(connection){
+    if(pool){
         let sql = `
-        SELECT * FROM pedido WHERE id = ${connection.escape(id)}
+        SELECT * FROM pedido WHERE id = ${pool.escape(id)}
         `;
 
-        connection.query(sql, (err, row) => {
+        pool.query(sql, (err, row) => {
             if(row){
                 let sql = `
                 DELETE FROM pedido WHERE id = ${id}
                 `;
-                connection.query(sql, (err, result) => {
+                pool.query(sql, (err, result) => {
                     if(err){
                         throw err;
                     }else{

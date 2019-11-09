@@ -1,18 +1,10 @@
-const mysql = require('mysql');
-const config = require('../config');
-connection = mysql.createConnection({
-    host: config.host,
-    user: config.user,
-    password: config.password,
-    database: config.database
-});
-
+const pool = require('../database/connection');
 
 let empleadoModel = {};
 
 empleadoModel.getEmpleado = (callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'SELECT * FROM empleados ORDER BY id',
             (err, rows) => {
                 if(err){
@@ -26,8 +18,8 @@ empleadoModel.getEmpleado = (callback) => {
 };
 
 empleadoModel.insertEmpleado = (empleadoData, callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'INSERT INTO empleados SET ?', empleadoData,
             (err, result) => {
                 if(err){
@@ -43,14 +35,14 @@ empleadoModel.insertEmpleado = (empleadoData, callback) => {
 }
 
 empleadoModel.updateEmpleado = (empleadoData, callback) => {
-    if(connection){
+    if(pool){
         const sql = `
         UPDATE empleados SET
-        usuario =  ${connection.escape(empleadoData.usuario)},
-        contraseña = ${connection.escape(empleadoData.contraseña)}
-        WHERE id = ${connection.escape(empleadoData.id)}
+        usuario =  ${pool.escape(empleadoData.usuario)},
+        contraseña = ${pool.escape(empleadoData.contraseña)}
+        WHERE id = ${pool.escape(empleadoData.id)}
         `
-        connection.query(sql, (err, result) => {
+        pool.query(sql, (err, result) => {
             if(err){
                 throw err;
             }else {
@@ -63,17 +55,17 @@ empleadoModel.updateEmpleado = (empleadoData, callback) => {
 };
 
 empleadoModel.deleteEmpleado = (id, callback) => {
-    if(connection){
+    if(pool){
         let sql = `
-        SELECT * FROM empleados WHERE id = ${connection.escape(id)}
+        SELECT * FROM empleados WHERE id = ${pool.escape(id)}
         `;
 
-        connection.query(sql, (err, row) => {
+        pool.query(sql, (err, row) => {
             if(row){
                 let sql = `
                 DELETE FROM empleados WHERE id = ${id}
                 `;
-                connection.query(sql, (err, result) => {
+                pool.query(sql, (err, result) => {
                     if(err){
                         throw err;
                     }else{

@@ -1,17 +1,10 @@
-const mysql = require('mysql');
-const config = require('../config');
-connection = mysql.createConnection({
-    host: config.host,
-    user: config.user,
-    password: config.password,
-    database: config.database
-});
+const pool = require('../database/connection')
 
 let tamanoModel = {};
 
 tamanoModel.getTamano = (callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'SELECT * FROM tamano ORDER BY id',
             (err, rows) => {
                 if(err){
@@ -25,8 +18,8 @@ tamanoModel.getTamano = (callback) => {
 };
 
 tamanoModel.insertTamano = (tamanoData, callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'INSERT INTO tamano SET ?', tamanoData,
             (err, result) => {
                 if(err){
@@ -42,14 +35,14 @@ tamanoModel.insertTamano = (tamanoData, callback) => {
 }
 
 tamanoModel.updateTamano = (tamanoData, callback) => {
-    if(connection){
+    if(pool){
         const sql = `
         UPDATE tamano SET
-        tamano =  ${connection.escape(tamanoData.tamano)},
-        rebanada = ${connection.escape(tamanoData.rebanada)}
-        WHERE id = ${connection.escape(tamanoData.id)}
+        tamano =  ${pool.escape(tamanoData.tamano)},
+        rebanada = ${pool.escape(tamanoData.rebanada)}
+        WHERE id = ${pool.escape(tamanoData.id)}
         `
-        connection.query(sql, (err, result) => {
+        pool.query(sql, (err, result) => {
             if(err){
                 throw err;
             }else {
@@ -62,17 +55,17 @@ tamanoModel.updateTamano = (tamanoData, callback) => {
 };
 
 tamanoModel.deleteTamano = (id, callback) => {
-    if(connection){
+    if(pool){
         let sql = `
-        SELECT * FROM tamano WHERE id = ${connection.escape(id)}
+        SELECT * FROM tamano WHERE id = ${pool.escape(id)}
         `;
 
-        connection.query(sql, (err, row) => {
+        pool.query(sql, (err, row) => {
             if(row){
                 let sql = `
                 DELETE FROM tamano WHERE id = ${id}
                 `;
-                connection.query(sql, (err, result) => {
+                pool.query(sql, (err, result) => {
                     if(err){
                         throw err;
                     }else{

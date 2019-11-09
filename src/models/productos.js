@@ -1,17 +1,10 @@
-const mysql = require('mysql');
-const config = require('../config');
-connection = mysql.createConnection({
-    host: config.host,
-    user: config.user,
-    password: config.password,
-    database: config.database
-});
+const pool = require('../database/connection');
 
 let productosModel = {};
 
 productosModel.getProductos = (callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'SELECT * FROM producto ORDER BY id',
             (err, rows) => {
                 if(err){
@@ -25,8 +18,8 @@ productosModel.getProductos = (callback) => {
 };
 
 productosModel.insertProductos = (productosData, callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'INSERT INTO producto SET ?', productosData,
             (err, result) => {
                 if(err){
@@ -42,16 +35,16 @@ productosModel.insertProductos = (productosData, callback) => {
 }
 
 productosModel.updateProductos = (productosData, callback) => {
-    if(connection){
+    if(pool){
         const sql = `
         UPDATE producto SET
-        id_proveedor = ${connection.escape(productosData.id_proveedor)},
-        nombre =  ${connection.escape(productosData.nombre)},
-        existencia_b = ${connection.escape(productosData.existencia_b)},
-        disponible_v = ${connection.escape(productosData.disponible_v)}
-        WHERE id = ${connection.escape(productosData.id)}
+        id_proveedor = ${pool.escape(productosData.id_proveedor)},
+        nombre =  ${pool.escape(productosData.nombre)},
+        existencia_b = ${pool.escape(productosData.existencia_b)},
+        disponible_v = ${pool.escape(productosData.disponible_v)}
+        WHERE id = ${pool.escape(productosData.id)}
         `
-        connection.query(sql, (err, result) => {
+        pool.query(sql, (err, result) => {
             if(err){
                 throw err;
             }else {
@@ -64,17 +57,17 @@ productosModel.updateProductos = (productosData, callback) => {
 };
 
 productosModel.deleteProductos = (id, callback) => {
-    if(connection){
+    if(pool){
         let sql = `
-        SELECT * FROM producto WHERE id = ${connection.escape(id)}
+        SELECT * FROM producto WHERE id = ${pool.escape(id)}
         `;
 
-        connection.query(sql, (err, row) => {
+        pool.query(sql, (err, row) => {
             if(row){
                 let sql = `
                 DELETE FROM producto WHERE id = ${id}
                 `;
-                connection.query(sql, (err, result) => {
+                pool.query(sql, (err, result) => {
                     if(err){
                         throw err;
                     }else{

@@ -1,17 +1,10 @@
-const mysql = require('mysql');
-const config = require('../config');
-connection = mysql.createConnection({
-    host: config.host,
-    user: config.user,
-    password: config.password,
-    database: config.database
-});
+const pool = require('../database/connection');
 
 let proveedorModel = {};
 
 proveedorModel.getProveedor = (callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'SELECT * FROM proveedores ORDER BY id',
             (err, rows) => {
                 if(err){
@@ -24,9 +17,9 @@ proveedorModel.getProveedor = (callback) => {
     }
 };
 proveedorModel.getAproveedor = (id, callback) => {
-    if (connection) {
+    if (pool) {
         console.log(id)
-        connection.query(`SELECT * FROM proveedores WHERE id='${id}'`, (err,rows) => {
+        pool.query(`SELECT * FROM proveedores WHERE id='${id}'`, (err,rows) => {
             if (err) {
                throw err;
             } else {
@@ -36,8 +29,8 @@ proveedorModel.getAproveedor = (id, callback) => {
     }
 };
 proveedorModel.insertProveedor = (proveedorData, callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'INSERT INTO proveedores SET ?', proveedorData,
             (err, result) => {
                 if(err){
@@ -53,17 +46,17 @@ proveedorModel.insertProveedor = (proveedorData, callback) => {
 }
 
 proveedorModel.updateProveedor = (proveedorData, callback) => {
-    if(connection){
+    if(pool){
         const sql = `
         UPDATE proveedores SET
-        nombre =  ${connection.escape(proveedorData.nombre)},
-        cantidad_kg = ${connection.escape(proveedorData.cantidad_kg)},
-        direccion = ${connection.escape(proveedorData.direccion)},
-        telefono = ${connection.escape(proveedorData.telefono)},
-        total_p = ${connection.escape(proveedorData.total_p)}
-        WHERE id = ${connection.escape(proveedorData.id)}
+        nombre =  ${pool.escape(proveedorData.nombre)},
+        cantidad_kg = ${pool.escape(proveedorData.cantidad_kg)},
+        direccion = ${pool.escape(proveedorData.direccion)},
+        telefono = ${pool.escape(proveedorData.telefono)},
+        total_p = ${pool.escape(proveedorData.total_p)}
+        WHERE id = ${pool.escape(proveedorData.id)}
         `
-        connection.query(sql, (err, result) => {
+        pool.query(sql, (err, result) => {
             if(err){
                 throw err;
             }else {
@@ -76,17 +69,17 @@ proveedorModel.updateProveedor = (proveedorData, callback) => {
 };
 
 proveedorModel.deleteProveedor = (id, callback) => {
-    if(connection){
+    if(pool){
         let sql = `
-        SELECT * FROM proveedores WHERE id = ${connection.escape(id)}
+        SELECT * FROM proveedores WHERE id = ${pool.escape(id)}
         `;
 
-        connection.query(sql, (err, row) => {
+        pool.query(sql, (err, row) => {
             if(row){
                 let sql = `
                 DELETE FROM proveedores WHERE id = ${id}
                 `;
-                connection.query(sql, (err, result) => {
+                pool.query(sql, (err, result) => {
                     if(err){
                         throw err;
                     }else{

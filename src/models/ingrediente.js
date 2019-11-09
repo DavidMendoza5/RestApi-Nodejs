@@ -1,17 +1,10 @@
-const mysql = require('mysql');
-const config = require('../config');
-connection = mysql.createConnection({
-    host: config.host,
-    user: config.user,
-    password: config.password,
-    database: config.database
-});
+const pool = require('../database/connection');
 
 let ingredienteModel = {};
 
 ingredienteModel.getIngrediente = (callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'SELECT * FROM ingredientes ORDER BY id',
             (err, rows) => {
                 if(err){
@@ -25,8 +18,8 @@ ingredienteModel.getIngrediente = (callback) => {
 };
 
 ingredienteModel.insertIngrediente = (ingredienteData, callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'INSERT INTO ingredientes SET ?', ingredienteData,
             (err, result) => {
                 if(err){
@@ -42,14 +35,14 @@ ingredienteModel.insertIngrediente = (ingredienteData, callback) => {
 }
 
 ingredienteModel.updateIngrediente = (ingredienteData, callback) => {
-    if(connection){
+    if(pool){
         const sql = `
         UPDATE ingredientes SET
-        id_proveedor = ${connection.escape(ingredienteData.id_proveedor)},
-        nombre =  ${connection.escape(ingredienteData.nombre)}
-        WHERE id = ${connection.escape(ingredienteData.id)}
+        id_proveedor = ${pool.escape(ingredienteData.id_proveedor)},
+        nombre =  ${pool.escape(ingredienteData.nombre)}
+        WHERE id = ${pool.escape(ingredienteData.id)}
         `
-        connection.query(sql, (err, result) => {
+        pool.query(sql, (err, result) => {
             if(err){
                 throw err;
             }else {
@@ -62,17 +55,17 @@ ingredienteModel.updateIngrediente = (ingredienteData, callback) => {
 };
 
 ingredienteModel.deleteIngrediente = (id, callback) => {
-    if(connection){
+    if(pool){
         let sql = `
         SELECT * FROM ingredientes WHERE id = ${connection.escape(id)}
         `;
 
-        connection.query(sql, (err, row) => {
+        pool.query(sql, (err, row) => {
             if(row){
                 let sql = `
                 DELETE FROM ingredientes WHERE id = ${id}
                 `;
-                connection.query(sql, (err, result) => {
+                pool.query(sql, (err, result) => {
                     if(err){
                         throw err;
                     }else{

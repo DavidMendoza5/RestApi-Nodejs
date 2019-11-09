@@ -1,17 +1,10 @@
-const mysql = require('mysql');
-const config = require('../config');
-connection = mysql.createConnection({
-    host: config.host,
-    user: config.user,
-    password: config.password,
-    database: config.database
-});
+const pool = require('../database/connection');
 
 let tipospModel = {};
 
 tipospModel.getTiposp = (callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'SELECT * FROM tipos_pizza ORDER BY id',
             (err, rows) => {
                 if(err){
@@ -25,9 +18,9 @@ tipospModel.getTiposp = (callback) => {
 };
 
 tipospModel.getOneTiposp = (id, callback)=>{
-    if (connection){
+    if (pool){
         console.log(id)
-        connection.query(`SELECT * FROM tipos_pizza WHERE id = '${id}'`,(err,rows)=>{
+        pool.query(`SELECT * FROM tipos_pizza WHERE id = '${id}'`,(err,rows)=>{
             if(err){
                 throw err;
             }else{
@@ -38,8 +31,8 @@ tipospModel.getOneTiposp = (id, callback)=>{
 };
 
 tipospModel.insertTiposp = (tipospData, callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'INSERT INTO tipos_pizza SET ?', tipospData,
             (err, result) => {
                 if(err){
@@ -55,13 +48,13 @@ tipospModel.insertTiposp = (tipospData, callback) => {
 }
 
 tipospModel.updateTiposp = (tipospData, callback) => {
-    if(connection){
+    if(pool){
         const sql = `
         UPDATE tipos_pizza SET
-        nombre =  ${connection.escape(tipospData.nombre)}
-        WHERE id = ${connection.escape(tipospData.id)}
+        nombre =  ${pool.escape(tipospData.nombre)}
+        WHERE id = ${pool.escape(tipospData.id)}
         `
-        connection.query(sql, (err, result) => {
+        pool.query(sql, (err, result) => {
             if(err){
                 throw err;
             }else {
@@ -74,17 +67,17 @@ tipospModel.updateTiposp = (tipospData, callback) => {
 };
 
 tipospModel.deleteTiposp = (id, callback) => {
-    if(connection){
+    if(pool){
         let sql = `
-        SELECT * FROM tipos_pizza WHERE id = ${connection.escape(id)}
+        SELECT * FROM tipos_pizza WHERE id = ${pool.escape(id)}
         `;
 
-        connection.query(sql, (err, row) => {
+        pool.query(sql, (err, row) => {
             if(row){
                 let sql = `
                 DELETE FROM tipos_pizza WHERE id = ${id}
                 `;
-                connection.query(sql, (err, result) => {
+                pool.query(sql, (err, result) => {
                     if(err){
                         throw err;
                     }else{

@@ -1,17 +1,9 @@
-const mysql = require('mysql');
-const config = require('../config');
-connection = mysql.createConnection({
-    host: config.host,
-    user: config.user,
-    password: config.password,
-    database: config.database
-});
-
+const pool = require('../database/connection');
 let dempleadoModel = {};
 
 dempleadoModel.getDempleado = (callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'SELECT * FROM datos_empleados ORDER BY id',
             (err, rows) => {
                 if(err){
@@ -25,8 +17,8 @@ dempleadoModel.getDempleado = (callback) => {
 };
 
 dempleadoModel.insertDempleado = (dempleadoData, callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'INSERT INTO datos_empleados SET ?', dempleadoData,
             (err, result) => {
                 if(err){
@@ -42,17 +34,17 @@ dempleadoModel.insertDempleado = (dempleadoData, callback) => {
 }
 
 dempleadoModel.updateDempleado = (dempleadoData, callback) => {
-    if(connection){
+    if(pool){
         const sql = `
         UPDATE datos_empleados SET
-        nombre =  ${connection.escape(dempleadoData.nombre)},
-        apaterno = ${connection.escape(dempleadoData.apaterno)},
-        amaterno = ${connection.escape(dempleadoData.amaterno)},
-        telefono = ${connection.escape(dempleadoData.telefono)},
-        direccion = ${connection.escape(dempleadoData.direccion)}
-        WHERE id = ${connection.escape(dempleadoData.id)}
+        nombre =  ${pool.escape(dempleadoData.nombre)},
+        apaterno = ${pool.escape(dempleadoData.apaterno)},
+        amaterno = ${pool.escape(dempleadoData.amaterno)},
+        telefono = ${pool.escape(dempleadoData.telefono)},
+        direccion = ${pool.escape(dempleadoData.direccion)}
+        WHERE id = ${pool.escape(dempleadoData.id)}
         `
-        connection.query(sql, (err, result) => {
+        pool.query(sql, (err, result) => {
             if(err){
                 throw err;
             }else {
@@ -65,17 +57,17 @@ dempleadoModel.updateDempleado = (dempleadoData, callback) => {
 };
 
 dempleadoModel.deleteDempleado = (id, callback) => {
-    if(connection){
+    if(pool){
         let sql = `
-        SELECT * FROM datos_empleados WHERE id = ${connection.escape(id)}
+        SELECT * FROM datos_empleados WHERE id = ${pool.escape(id)}
         `;
 
-        connection.query(sql, (err, row) => {
+        pool.query(sql, (err, row) => {
             if(row){
                 let sql = `
                 DELETE FROM datos_empleados WHERE id = ${id}
                 `;
-                connection.query(sql, (err, result) => {
+                pool.query(sql, (err, result) => {
                     if(err){
                         throw err;
                     }else{

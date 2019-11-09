@@ -1,17 +1,10 @@
-const mysql = require('mysql');
-const config = require('../config');
-connection = mysql.createConnection({
-    host: config.host,
-    user: config.user,
-    password: config.password,
-    database: config.database
-});
+const pool = require('../database/connection');
 
 let userModel = {};
 
 userModel.getUser = (callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'SELECT * FROM clientes ORDER BY id',
             (err, rows) => {
                 if(err){
@@ -24,9 +17,9 @@ userModel.getUser = (callback) => {
     }
 };
 userModel.getanUser = (id , callback)=>{
-    if(connection){
+    if(pool){
         console.log(id)
-        connection.query(`SELECT * FROM clientes WHERE id ='${id}'`,(err,rows)=>{
+        pool.query(`SELECT * FROM clientes WHERE id ='${id}'`,(err,rows)=>{
            if(err){
                throw err;
            }else{
@@ -37,8 +30,8 @@ userModel.getanUser = (id , callback)=>{
 };
 
 userModel.insertUser = (userData, callback) => {
-    if(connection){
-        connection.query(
+    if(pool){
+        pool.query(
             'INSERT INTO clientes SET ?', userData,
             (err, result) => {
                 if(err){
@@ -54,17 +47,17 @@ userModel.insertUser = (userData, callback) => {
 }
 
 userModel.updateUser = (userData, callback) => {
-    if(connection){
+    if(pool){
         const sql = `
         UPDATE clientes SET
-        nombre =  ${connection.escape(userData.nombre)},
-        apaterno = ${connection.escape(userData.apaterno)},
-        amaterno = ${connection.escape(userData.amaterno)},
-        telefono = ${connection.escape(userData.telefono)},
-        direccion = ${connection.escape(userData.direccion)}
-        WHERE id = ${connection.escape(userData.id)}
+        nombre =  ${pool.escape(userData.nombre)},
+        apaterno = ${pool.escape(userData.apaterno)},
+        amaterno = ${pool.escape(userData.amaterno)},
+        telefono = ${pool.escape(userData.telefono)},
+        direccion = ${pool.escape(userData.direccion)}
+        WHERE id = ${pool.escape(userData.id)}
         `
-        connection.query(sql, (err, result) => {
+        pool.query(sql, (err, result) => {
             if(err){
                 throw err;
             }else {
@@ -77,17 +70,17 @@ userModel.updateUser = (userData, callback) => {
 };
 
 userModel.deleteUser = (id, callback) => {
-    if(connection){
+    if(pool){
         let sql = `
-        SELECT * FROM clientes WHERE id = ${connection.escape(id)}
+        SELECT * FROM clientes WHERE id = ${pool.escape(id)}
         `;
 
-        connection.query(sql, (err, row) => {
+        pool.query(sql, (err, row) => {
             if(row){
                 let sql = `
                 DELETE FROM clientes WHERE id = ${id}
                 `;
-                connection.query(sql, (err, result) => {
+                pool.query(sql, (err, result) => {
                     if(err){
                         throw err;
                     }else{
